@@ -1,0 +1,110 @@
+//     ################################################################ TRANSACTION #######################################################################
+class txn;
+        rand  bit	[31:0] 	instn	;
+	rand  bit 	[6:0]	opcode	;
+	rand  bit 	[2:0]	fun3	;
+	      bit 	    	lb	;
+              bit               lh	;
+    	      bit  		lw	;
+    	      bit  		lbu	;
+    	      bit  	    	lhu	;
+    	      bit 	    	lwu	;
+   	      bit 	    	ld	;
+   	      bit 	    	sd	;
+    	      bit  	    	sb	;
+    	      bit  	    	sh	;
+    	      bit  	    	sw	;
+   	      bit 	[4:0]	rd	;
+   	      bit 	[4:0]	rs1	;
+   	      bit 	[4:0]	rs2	;
+   	      bit 	[11:0]	imm     ; 
+
+        function void display(string name)
+            $display("--------------------------");
+            $display("%s",name);
+            $display("--------------------------");
+            $display(" instn   =    %0b ;     
+                       opcode  =    %0b ; 
+                       fun3    =    %0b ;   
+                       lb	   =    %0b ; 
+                       lh	   =    %0b ; 
+                       lw	   =    %0b ; 
+                       lbu	   =    %0b ; 
+                       lhu	   =    %0b ;     
+                       lwu	   =    %0b ; 
+                       ld	   =    %0b ; 
+                       sd	   =    %0b ; 
+                       sb	   =    %0b ; 
+                       sh	   =    %0b ; 
+                       sw	   =    %0b ; 
+                       rd	   =    %0d ; 
+                       rs1	   =    %0d ; 
+                       rs2	   =    %0d ; 
+                       imm     =    %0d ;",instn,opcode,fun3,lb,lh,lw,lbu,lhu,lwu,ld,sd,sb,sh,sw,rd,rs1,rs2,imm); 
+            $display("--------------------------------------");
+        endfunction
+    endclass
+
+// ############################################################# GENERATOR ###############################################################################
+
+class generator;
+
+    rand txn    txn1;
+    int rpc;
+    mailbox gen2driv;
+    event ended;
+
+    function mbg(mailbox gen2driv);
+	    this.gen2driv	=	gen2driv;
+	endfunction
+
+    task main();
+     	repeat(rpc)
+	begin
+		txn1	=	new();
+     		if (!txn1.randomize())
+		     $fatal("------- Randomization failed");
+		gen2driv.put(txn1);
+	end
+      ->ended;
+     endtask
+    endclass
+
+// ########################################################## INTERFACE ##############################################################################
+
+
+interface intf(input clk);
+	logic	[31:0] 	instn	;
+        logic	[6:0]	opcode	;
+        logic	[2:0]	fun3	;
+	logic		lb  	; 
+	logic		lh  	;
+	logic		lw  	;
+	logic		lbu 	;
+	logic		lhu 	;
+	logic		lwu 	;
+	logic		ld  	;	
+	logic		sd  	;
+	logic		sb  	;
+	logic		sh  	;
+	logic		sw  	;
+	logic	[4:0]	rd  	;
+	logic	[4:0]	rs1 	;
+	logic	[4:0]	rs2 	;
+	logic	[11:0]	imm	;
+endinterface
+
+
+
+// ######################################################### DRIVER ######################################################################################
+
+class driver;
+	virtual intf vi	;
+	mailbox gen2driv;
+
+	function mbg(virtual intf vi,mailbox gen2driv);
+		this.vi		=	this.vi		;
+		this.gen2driv	=	this.gen2driv	;
+	endfunction
+
+endclass
